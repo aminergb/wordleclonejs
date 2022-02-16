@@ -4,15 +4,19 @@ import dictionnary from '../dictionary.js'
 //length of a row
 const WORDLE_ROW_SIZE = 5
 //flip animation duration in ms
-const dailyWorld = "sadle"
+let dailyWorld = "sadle"
 const FLIP_DURATION = 400
 const DANCE_DURATION = 400
 const guessGridElem = document.querySelector('[data-guess-grid]')
 const keyBoardElem = document.querySelector('[data-keyboard]')
 const alertContainer = document.querySelector('[data-alert-container]')
-export function startInteraction() {
+export function startInteraction(word) {
+    dailyWorld = word
     //adding event listeners :
     //adding onclick event listener to use the virtual keyboard: 
+    if (dailyWorld === null) {
+        return showToolTip("api problem refresh your browser or check your internet connexion ", 5000)
+    }
     document.addEventListener("click", handleClick)
     //adding keydown eventlistener to use the real keyboard:
     document.addEventListener('keydown', handleKeyPress)
@@ -117,6 +121,7 @@ function verifyWord() {
         return
 
     }
+    //if not included in dictionnary and not included in api !! TODO
     if (!dictionnary.includes(guessWord)) {
         showToolTip("not included in dictionnary")
         shakeTiles(activeTiles)
@@ -155,7 +160,7 @@ function flipTile(tile, index, array, guessWord) {
         //if tile is last from activetiles
         if (index === array.length - 1) {
             tile.addEventListener("transitionend", () => {
-                startInteraction()
+                startInteraction(dailyWorld)
                 checkwinLose(guessWord, array)
             }, { once: true })
         }
@@ -168,14 +173,14 @@ function checkwinLose(guessWord, arrayTiles) {
         showToolTip("you won ", 3000)
         danceTiles(arrayTiles)
         stopInteraction()
-        showToolTip("press Space to replay", 2000)
+        showToolTip("press any key to replay", 2000)
         document.addEventListener("keydown", (e) => {
             console.log(e.key)
             // TODO: replayGame
-            if (e.key === "Spacebar" || e.key === " ") {
 
-                replayGame()
-            }
+
+            replayGame()
+
         }, { once: true })
     }
     const emptyTiles = guessGridElem.querySelectorAll(':not([data-letter])')
@@ -255,7 +260,7 @@ function replayGame() {
         item.textContent = ""
         delete item.dataset.state
     })
-    startInteraction()
+    startInteraction(dailyWorld)
 }
 
 
